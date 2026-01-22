@@ -9,11 +9,12 @@ import {
 } from "./reddit.ts";
 import { formatPosts, formatSubredditInfo, formatPostWithComments } from "./format.ts";
 import type { Format } from "./format.ts";
+import { version } from "../package.json";
 
 export function createServer(): McpServer {
   const server = new McpServer({
     name: "reddit-mcp",
-    version: "1.0.0",
+    version,
   });
 
   const formatSchema = z.enum(["md", "json"]).default("md").describe("Output format: md (markdown) or json");
