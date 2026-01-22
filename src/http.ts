@@ -2,6 +2,7 @@ import { createServer as createHttpServer, type IncomingMessage, type ServerResp
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { createServer } from "./server.ts";
+import { version } from "../package.json";
 
 const sessions = new Map<string, StreamableHTTPServerTransport>();
 
@@ -104,5 +105,5 @@ const httpServer = createHttpServer(async (req, res) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`MCP HTTP server running on http://localhost:${PORT}/mcp`);
+  console.log(`reddit-mcp v${version} running on http://localhost:${PORT}/mcp`);
 });
