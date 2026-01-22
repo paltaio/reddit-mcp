@@ -39,6 +39,12 @@ const httpServer = createHttpServer(async (req, res) => {
   if (req.method === "POST") {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
+    // Ensure Accept header includes required MIME types for StreamableHTTPServerTransport
+    const accept = req.headers.accept ?? "";
+    if (!accept.includes("text/event-stream")) {
+      req.headers.accept = "application/json, text/event-stream";
+    }
+
     let body: unknown;
     try {
       body = await parseBody(req);
