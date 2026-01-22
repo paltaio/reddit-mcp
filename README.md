@@ -38,18 +38,14 @@ PORT=8080 bun start:http
 
 ### Docker
 
-**Stdio mode:**
-
 ```bash
 docker build -t reddit-mcp .
+
+# stdio (default)
 docker run --rm -i reddit-mcp
-```
 
-**HTTP mode:**
-
-```bash
-docker build -t reddit-mcp --build-arg TRANSPORT=http .
-docker run --rm -p 3000:3000 reddit-mcp
+# http
+docker run --rm -p 3000:3000 -e TRANSPORT=http reddit-mcp
 ```
 
 ## MCP client config

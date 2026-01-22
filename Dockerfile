@@ -10,8 +10,7 @@ COPY --from=install /app/node_modules node_modules
 COPY src src
 COPY package.json .
 
-ARG TRANSPORT=stdio
-ENV TRANSPORT=${TRANSPORT}
+ENV TRANSPORT=stdio
 
 USER bun
 EXPOSE 3000
