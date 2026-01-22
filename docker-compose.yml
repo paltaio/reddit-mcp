@@ -1,0 +1,17 @@
+name: reddit-mcp
+
+services:
+  stdio:
+    build: .
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  http:
+    build:
+      context: .
+      args:
+        TRANSPORT: http
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
