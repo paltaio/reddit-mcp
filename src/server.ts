@@ -29,15 +29,16 @@ export function createServer(): McpServer {
       description: "Search Reddit globally for posts matching a query",
       inputSchema: {
         query: z.string().describe("Search query"),
-        limit: z.number().min(1).max(25).default(10).describe("Number of results (max 25)"),
+        limit: z.number().min(1).max(25).default(5).describe("Number of results (max 25)"),
         sort: sortSchema.describe("Sort order"),
         time: timeSchema.describe("Time filter for results"),
+        after: z.string().optional().describe("Pagination cursor from previous response"),
         format: formatSchema,
       },
     },
-    async ({ query, limit, sort, time, format }) => {
-      const posts = await search(query, limit, sort, time);
-      const text = formatPosts(posts, format as Format);
+    async ({ query, limit, sort, time, after, format }) => {
+      const result = await search(query, limit, sort, time, after);
+      const text = formatPosts(result.items, format as Format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -66,15 +67,16 @@ export function createServer(): McpServer {
       description: "Get posts from a subreddit",
       inputSchema: {
         subreddit: z.string().describe("Subreddit name (without r/)"),
-        limit: z.number().min(1).max(25).default(10).describe("Number of posts (max 25)"),
+        limit: z.number().min(1).max(25).default(5).describe("Number of posts (max 25)"),
         sort: postSortSchema.describe("Sort order"),
         time: timeSchema.describe("Time filter (only applies to top)"),
+        after: z.string().optional().describe("Pagination cursor from previous response"),
         format: formatSchema,
       },
     },
-    async ({ subreddit, limit, sort, time, format }) => {
-      const posts = await getSubredditPosts(subreddit, limit, sort, time);
-      const text = formatPosts(posts, format as Format);
+    async ({ subreddit, limit, sort, time, after, format }) => {
+      const result = await getSubredditPosts(subreddit, limit, sort, time, after);
+      const text = formatPosts(result.items, format as Format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -87,7 +89,7 @@ export function createServer(): McpServer {
       inputSchema: {
         subreddit: z.string().describe("Subreddit name (without r/)"),
         post_id: z.string().describe("Post ID (the base36 ID from the URL)"),
-        limit: z.number().min(1).max(50).default(20).describe("Number of top-level comments (max 50)"),
+        limit: z.number().min(1).max(50).default(10).describe("Number of top-level comments (max 50)"),
         format: formatSchema,
       },
     },
@@ -106,15 +108,16 @@ export function createServer(): McpServer {
       inputSchema: {
         subreddit: z.string().describe("Subreddit name (without r/)"),
         query: z.string().describe("Search query"),
-        limit: z.number().min(1).max(25).default(10).describe("Number of results (max 25)"),
+        limit: z.number().min(1).max(25).default(5).describe("Number of results (max 25)"),
         sort: sortSchema.describe("Sort order"),
         time: timeSchema.describe("Time filter for results"),
+        after: z.string().optional().describe("Pagination cursor from previous response"),
         format: formatSchema,
       },
     },
-    async ({ subreddit, query, limit, sort, time, format }) => {
-      const posts = await searchSubreddit(subreddit, query, limit, sort, time);
-      const text = formatPosts(posts, format as Format);
+    async ({ subreddit, query, limit, sort, time, after, format }) => {
+      const result = await searchSubreddit(subreddit, query, limit, sort, time, after);
+      const text = formatPosts(result.items, format as Format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );

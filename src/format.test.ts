@@ -13,14 +13,16 @@ describe("formatPosts", () => {
     expect(result).toBe("No posts found.");
   });
 
-  it("returns empty array for no posts in json format", () => {
+  it("returns empty object for no posts in json format", () => {
     const result = formatPosts([], "json");
-    expect(result).toBe("[]");
+    const parsed = JSON.parse(result);
+    expect(parsed.posts).toEqual([]);
+    expect(parsed.after).toBeNull();
   });
 
   it("formats real posts in md format", async () => {
-    const posts = await search("javascript", 3);
-    const result = formatPosts(posts, "md");
+    const searchResult = await search("javascript", 3);
+    const result = formatPosts(searchResult.items, "md", searchResult.after);
 
     expect(result).toContain("##"); // Post titles
     expect(result).toContain("points");
@@ -30,32 +32,41 @@ describe("formatPosts", () => {
   });
 
   it("formats real posts in json format", async () => {
-    const posts = await getSubredditPosts("programming", 2);
-    const result = formatPosts(posts, "json");
+    const postsResult = await getSubredditPosts("programming", 2);
+    const result = formatPosts(postsResult.items, "json", postsResult.after);
     const parsed = JSON.parse(result);
 
-    expect(Array.isArray(parsed)).toBe(true);
-    expect(parsed.length).toBe(2);
-    expect(parsed[0]).toHaveProperty("id");
-    expect(parsed[0]).toHaveProperty("title");
-    expect(parsed[0]).toHaveProperty("author");
+    expect(Array.isArray(parsed.posts)).toBe(true);
+    expect(parsed.posts.length).toBe(2);
+    expect(parsed.posts[0]).toHaveProperty("id");
+    expect(parsed.posts[0]).toHaveProperty("title");
+    expect(parsed.posts[0]).toHaveProperty("author");
   });
 
   it("separates multiple posts with dividers in md format", async () => {
-    const posts = await search("python", 3);
-    const result = formatPosts(posts, "md");
+    const searchResult = await search("python", 3);
+    const result = formatPosts(searchResult.items, "md", searchResult.after);
 
     expect(result).toContain("---");
   });
 
   it("includes link for non-self posts", async () => {
     // Search for link posts (not self posts)
-    const posts = await getSubredditPosts("programming", 10);
-    const linkPost = posts.find((p) => !p.is_self);
+    const postsResult = await getSubredditPosts("programming", 10);
+    const linkPost = postsResult.items.find((p) => !p.is_self);
 
     if (linkPost) {
       const result = formatPosts([linkPost], "md");
       expect(result).toContain("Link:");
+    }
+  });
+
+  it("includes pagination hint when after cursor is present", async () => {
+    const postsResult = await getSubredditPosts("programming", 3);
+    if (postsResult.after) {
+      const result = formatPosts(postsResult.items, "md", postsResult.after);
+      expect(result).toContain("More results available");
+      expect(result).toContain(postsResult.after);
     }
   });
 });
@@ -86,16 +97,14 @@ describe("formatSubredditInfo", () => {
   it("formats subscriber count with commas", async () => {
     const info = await getSubredditInfo("programming");
     const result = formatSubredditInfo(info, "md");
-
-    // Programming has many subscribers, should have comma formatting
     expect(result).toMatch(/Subscribers: [\d,]+/);
   });
 });
 
 describe("formatPostWithComments", () => {
   it("formats real post with comments in md format", async () => {
-    const posts = await getSubredditPosts("AskReddit", 1, "hot");
-    const post = posts[0]!;
+    const postsResult = await getSubredditPosts("AskReddit", 1, "hot");
+    const post = postsResult.items[0]!;
     const { comments } = await getPostComments("AskReddit", post.id, 5);
 
     const result = formatPostWithComments(post, comments, "md");
@@ -110,8 +119,8 @@ describe("formatPostWithComments", () => {
   });
 
   it("formats real post with comments in json format", async () => {
-    const posts = await getSubredditPosts("javascript", 1, "top", "week");
-    const post = posts[0]!;
+    const postsResult = await getSubredditPosts("javascript", 1, "top", "week");
+    const post = postsResult.items[0]!;
     const { comments } = await getPostComments("javascript", post.id, 3);
 
     const result = formatPostWithComments(post, comments, "json");
@@ -124,8 +133,8 @@ describe("formatPostWithComments", () => {
   });
 
   it("shows no comments message when comments array is empty", async () => {
-    const posts = await getSubredditPosts("programming", 1);
-    const post = posts[0]!;
+    const postsResult = await getSubredditPosts("programming", 1);
+    const post = postsResult.items[0]!;
 
     const result = formatPostWithComments(post, [], "md");
     expect(result).toContain("_No comments_");
@@ -133,8 +142,8 @@ describe("formatPostWithComments", () => {
 
   it("formats nested replies correctly", async () => {
     // Get a popular post likely to have nested comments
-    const posts = await getSubredditPosts("AskReddit", 1, "top", "week");
-    const post = posts[0]!;
+    const postsResult = await getSubredditPosts("AskReddit", 1, "top", "week");
+    const post = postsResult.items[0]!;
     const { comments } = await getPostComments("AskReddit", post.id, 10);
 
     const result = formatPostWithComments(post, comments, "md");

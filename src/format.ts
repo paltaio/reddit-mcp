@@ -45,16 +45,22 @@ function formatCommentMd(comment: RedditComment, depth = 0): string {
   return lines.join("\n");
 }
 
-export function formatPosts(posts: RedditPost[], format: Format): string {
+export function formatPosts(posts: RedditPost[], format: Format, after?: string | null): string {
   if (format === "json") {
-    return JSON.stringify(posts, null, 2);
+    return JSON.stringify({ posts, after }, null, 2);
   }
 
   if (posts.length === 0) {
     return "No posts found.";
   }
 
-  return posts.map(formatPostMd).join("\n\n---\n\n");
+  const content = posts.map(formatPostMd).join("\n\n---\n\n");
+
+  if (after) {
+    return `${content}\n\n---\n\n*More results available. Use \`after: "${after}"\` to get next page.*`;
+  }
+
+  return content;
 }
 
 export function formatSubredditInfo(info: SubredditInfo, format: Format): string {

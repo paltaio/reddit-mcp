@@ -92,25 +92,35 @@ function parseComment(child: Record<string, unknown>): RedditComment | null {
   };
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  after: string | null;
+}
+
 export async function search(
   query: string,
-  limit = 10,
+  limit = 5,
   sort: "relevance" | "hot" | "top" | "new" = "relevance",
-  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
-): Promise<RedditPost[]> {
+  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all",
+  after?: string
+): Promise<PaginatedResult<RedditPost>> {
   const params = new URLSearchParams({
     q: query,
     limit: String(limit),
     sort,
     t: time,
   });
+  if (after) params.set("after", after);
 
   const url = `${BASE_URL}/search.json?${params}`;
   const response = await fetchJson<Record<string, unknown>>(url);
   const data = response.data as Record<string, unknown>;
   const children = data.children as Record<string, unknown>[];
 
-  return children.map((child) => parsePost(child.data as Record<string, unknown>));
+  return {
+    items: children.map((child) => parsePost(child.data as Record<string, unknown>)),
+    after: (data.after as string) ?? null,
+  };
 }
 
 export async function getSubredditInfo(subreddit: string): Promise<SubredditInfo> {
@@ -131,21 +141,26 @@ export async function getSubredditInfo(subreddit: string): Promise<SubredditInfo
 
 export async function getSubredditPosts(
   subreddit: string,
-  limit = 10,
+  limit = 5,
   sort: "hot" | "new" | "top" | "rising" = "hot",
-  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
-): Promise<RedditPost[]> {
+  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all",
+  after?: string
+): Promise<PaginatedResult<RedditPost>> {
   const params = new URLSearchParams({
     limit: String(limit),
     t: time,
   });
+  if (after) params.set("after", after);
 
   const url = `${BASE_URL}/r/${subreddit}/${sort}.json?${params}`;
   const response = await fetchJson<Record<string, unknown>>(url);
   const data = response.data as Record<string, unknown>;
   const children = data.children as Record<string, unknown>[];
 
-  return children.map((child) => parsePost(child.data as Record<string, unknown>));
+  return {
+    items: children.map((child) => parsePost(child.data as Record<string, unknown>)),
+    after: (data.after as string) ?? null,
+  };
 }
 
 export async function getPostComments(
@@ -178,10 +193,11 @@ export async function getPostComments(
 export async function searchSubreddit(
   subreddit: string,
   query: string,
-  limit = 10,
+  limit = 5,
   sort: "relevance" | "hot" | "top" | "new" = "relevance",
-  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
-): Promise<RedditPost[]> {
+  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all",
+  after?: string
+): Promise<PaginatedResult<RedditPost>> {
   const params = new URLSearchParams({
     q: query,
     restrict_sr: "on",
@@ -189,11 +205,15 @@ export async function searchSubreddit(
     sort,
     t: time,
   });
+  if (after) params.set("after", after);
 
   const url = `${BASE_URL}/r/${subreddit}/search.json?${params}`;
   const response = await fetchJson<Record<string, unknown>>(url);
   const data = response.data as Record<string, unknown>;
   const children = data.children as Record<string, unknown>[];
 
-  return children.map((child) => parsePost(child.data as Record<string, unknown>));
+  return {
+    items: children.map((child) => parsePost(child.data as Record<string, unknown>)),
+    after: (data.after as string) ?? null,
+  };
 }
