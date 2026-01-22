@@ -2,12 +2,12 @@ name: reddit-mcp
 
 services:
   stdio:
-    build: .
+    image: ghcr.io/paltaio/reddit-mcp:latest
     stdin_open: true
     tty: true
 
   http:
-    build: .
+    image: ghcr.io/paltaio/reddit-mcp:latest
     ports:
       - "3000:3000"
     environment:

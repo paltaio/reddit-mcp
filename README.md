@@ -39,13 +39,11 @@ PORT=8080 bun start:http
 ### Docker
 
 ```bash
-docker build -t reddit-mcp .
-
 # stdio (default)
-docker run --rm -i reddit-mcp
+docker run --rm -i ghcr.io/paltaio/reddit-mcp:latest
 
 # http
-docker run --rm -p 3000:3000 -e TRANSPORT=http reddit-mcp
+docker run --rm -p 3000:3000 -e TRANSPORT=http ghcr.io/paltaio/reddit-mcp:latest
 ```
 
 ## MCP client config
