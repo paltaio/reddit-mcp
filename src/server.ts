@@ -8,7 +8,6 @@ import {
   searchSubreddit,
 } from "./reddit.ts";
 import { formatPosts, formatSubredditInfo, formatPostWithComments } from "./format.ts";
-import type { Format } from "./format.ts";
 import { version } from "../package.json";
 
 export function createServer(): McpServer {
@@ -38,7 +37,7 @@ export function createServer(): McpServer {
     },
     async ({ query, limit, sort, time, after, format }) => {
       const result = await search(query, limit, sort, time, after);
-      const text = formatPosts(result.items, format as Format, result.after);
+      const text = formatPosts(result.items, format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -55,7 +54,7 @@ export function createServer(): McpServer {
     },
     async ({ subreddit, format }) => {
       const info = await getSubredditInfo(subreddit);
-      const text = formatSubredditInfo(info, format as Format);
+      const text = formatSubredditInfo(info, format);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -76,7 +75,7 @@ export function createServer(): McpServer {
     },
     async ({ subreddit, limit, sort, time, after, format }) => {
       const result = await getSubredditPosts(subreddit, limit, sort, time, after);
-      const text = formatPosts(result.items, format as Format, result.after);
+      const text = formatPosts(result.items, format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -95,7 +94,7 @@ export function createServer(): McpServer {
     },
     async ({ subreddit, post_id, limit, format }) => {
       const { post, comments } = await getPostComments(subreddit, post_id, limit);
-      const text = formatPostWithComments(post, comments, format as Format);
+      const text = formatPostWithComments(post, comments, format);
       return { content: [{ type: "text", text }] };
     }
   );
@@ -117,7 +116,7 @@ export function createServer(): McpServer {
     },
     async ({ subreddit, query, limit, sort, time, after, format }) => {
       const result = await searchSubreddit(subreddit, query, limit, sort, time, after);
-      const text = formatPosts(result.items, format as Format, result.after);
+      const text = formatPosts(result.items, format, result.after);
       return { content: [{ type: "text", text }] };
     }
   );

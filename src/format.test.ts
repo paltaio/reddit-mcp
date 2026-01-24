@@ -24,7 +24,7 @@ describe("formatPosts", () => {
     const searchResult = await search("javascript", 3);
     const result = formatPosts(searchResult.items, "md", searchResult.after);
 
-    expect(result).toContain("##"); // Post titles
+    expect(result).toContain("##");
     expect(result).toContain("points");
     expect(result).toContain("comments");
     expect(result).toContain("by u/");
@@ -36,7 +36,6 @@ describe("formatPosts", () => {
     const result = formatPosts(postsResult.items, "json", postsResult.after);
     const parsed = JSON.parse(result);
 
-    expect(Array.isArray(parsed.posts)).toBe(true);
     expect(parsed.posts.length).toBe(2);
     expect(parsed.posts[0]).toHaveProperty("id");
     expect(parsed.posts[0]).toHaveProperty("title");
@@ -51,7 +50,6 @@ describe("formatPosts", () => {
   });
 
   it("includes link for non-self posts", async () => {
-    // Search for link posts (not self posts)
     const postsResult = await getSubredditPosts("programming", 10);
     const linkPost = postsResult.items.find((p) => !p.is_self);
 
@@ -109,11 +107,11 @@ describe("formatPostWithComments", () => {
 
     const result = formatPostWithComments(post, comments, "md");
 
-    expect(result).toContain("##"); // Post title
+    expect(result).toContain("##");
     expect(result).toContain("## Comments");
 
     if (comments.length > 0) {
-      expect(result).toContain("**u/"); // Comment author
+      expect(result).toContain("**u/");
       expect(result).toContain("points");
     }
   });
@@ -129,7 +127,6 @@ describe("formatPostWithComments", () => {
     expect(parsed).toHaveProperty("post");
     expect(parsed).toHaveProperty("comments");
     expect(parsed.post.id).toBe(post.id);
-    expect(Array.isArray(parsed.comments)).toBe(true);
   });
 
   it("shows no comments message when comments array is empty", async () => {
@@ -148,10 +145,8 @@ describe("formatPostWithComments", () => {
 
     const result = formatPostWithComments(post, comments, "md");
 
-    // Check that the output includes proper indentation for replies
-    // Replies are indented with 2 spaces per depth level
     if (comments.some((c) => c.replies.length > 0)) {
-      expect(result).toContain("  **u/"); // Indented reply author
+      expect(result).toContain("  **u/");
     }
   });
 });

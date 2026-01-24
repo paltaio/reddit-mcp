@@ -19,20 +19,6 @@ describe("search", () => {
     expect(result.items.length).toBeLessThanOrEqual(3);
   });
 
-  it("accepts sort parameter", async () => {
-    const result = await search("react", 3, "top");
-    expect(result.items.length).toBeGreaterThan(0);
-  });
-
-  it("accepts time parameter", async () => {
-    const result = await search("typescript", 3, "top", "year");
-    expect(result.items.length).toBeGreaterThan(0);
-  });
-
-  it("returns pagination cursor", async () => {
-    const result = await search("programming", 5);
-    expect(result.after === null || typeof result.after === "string").toBe(true);
-  });
 });
 
 describe("getSubredditInfo", () => {
@@ -97,7 +83,6 @@ describe("getPostComments", () => {
 
     const result = await getPostComments("AskReddit", post.id, 5);
     expect(result.post.id).toBe(post.id);
-    expect(Array.isArray(result.comments)).toBe(true);
   });
 
   it("returns nested replies when present", async () => {

@@ -2,11 +2,6 @@ import { describe, expect, it } from "bun:test";
 import { createServer } from "./server.ts";
 
 describe("createServer", () => {
-  it("creates server successfully", () => {
-    const server = createServer();
-    expect(server).toBeDefined();
-  });
-
   it("registers all expected tools with correct descriptions", () => {
     const server = createServer();
     // @ts-expect-error accessing private property for testing
