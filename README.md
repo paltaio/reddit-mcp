@@ -46,6 +46,25 @@ docker run --rm -i ghcr.io/paltaio/reddit-mcp:latest
 docker run --rm -p 3000:3000 -e TRANSPORT=http ghcr.io/paltaio/reddit-mcp:latest
 ```
 
+## Proxy
+
+Set standard proxy environment variables to route Reddit API requests through a proxy (HTTP, HTTPS, or SOCKS5):
+
+```bash
+HTTPS_PROXY=http://proxy:8080 bun start
+HTTPS_PROXY=socks5://proxy:1080 bun start
+```
+
+Supported variables (checked in order): `HTTPS_PROXY`, `https_proxy`, `HTTP_PROXY`, `http_proxy`, `ALL_PROXY`, `all_proxy`.
+
+Authenticated proxies use URL format: `http://user:pass@proxy:8080`
+
+Docker:
+
+```bash
+docker run --rm -i -e HTTPS_PROXY=http://proxy:8080 ghcr.io/paltaio/reddit-mcp:latest
+```
+
 ## MCP client config
 
 ### Stdio (Claude Code)

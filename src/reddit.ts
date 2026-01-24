@@ -2,6 +2,17 @@ const BASE_URL = "https://old.reddit.com";
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
+function getProxyUrl(): string | undefined {
+  return (
+    process.env.HTTPS_PROXY ??
+    process.env.https_proxy ??
+    process.env.HTTP_PROXY ??
+    process.env.http_proxy ??
+    process.env.ALL_PROXY ??
+    process.env.all_proxy
+  );
+}
+
 export interface RedditPost {
   id: string;
   title: string;
@@ -37,8 +48,10 @@ export interface SubredditInfo {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
+  const proxy = getProxyUrl();
   const response = await fetch(url, {
     headers: { "User-Agent": USER_AGENT },
+    ...(proxy && { proxy }),
   });
 
   if (!response.ok) {
