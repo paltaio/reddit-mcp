@@ -1,7 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import {
-  search,
   getSubredditInfo,
   getSubredditPosts,
   getPostComments,
@@ -20,27 +19,6 @@ export function createServer(): McpServer {
   const sortSchema = z.enum(["relevance", "hot", "top", "new"]).default("relevance");
   const postSortSchema = z.enum(["hot", "new", "top", "rising"]).default("hot");
   const timeSchema = z.enum(["hour", "day", "week", "month", "year", "all"]).default("all");
-
-  server.registerTool(
-    "search",
-    {
-      title: "Search Reddit",
-      description: "Search Reddit globally for posts matching a query",
-      inputSchema: {
-        query: z.string().describe("Search query"),
-        limit: z.number().min(1).max(25).default(5).describe("Number of results (max 25)"),
-        sort: sortSchema.describe("Sort order"),
-        time: timeSchema.describe("Time filter for results"),
-        after: z.string().optional().describe("Pagination cursor from previous response"),
-        format: formatSchema,
-      },
-    },
-    async ({ query, limit, sort, time, after, format }) => {
-      const result = await search(query, limit, sort, time, after);
-      const text = formatPosts(result.items, format, result.after);
-      return { content: [{ type: "text", text }] };
-    }
-  );
 
   server.registerTool(
     "subreddit_info",

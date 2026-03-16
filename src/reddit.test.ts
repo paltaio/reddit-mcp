@@ -1,25 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import {
-  search,
   getSubredditInfo,
   getSubredditPosts,
   getPostComments,
   searchSubreddit,
 } from "./reddit.ts";
-
-describe("search", () => {
-  it("returns posts matching query", async () => {
-    const result = await search("javascript", 5);
-    expect(result.items.length).toBeGreaterThan(0);
-    expect(result.items.length).toBeLessThanOrEqual(5);
-  });
-
-  it("respects limit parameter", async () => {
-    const result = await search("python programming", 3);
-    expect(result.items.length).toBeLessThanOrEqual(3);
-  });
-
-});
 
 describe("getSubredditInfo", () => {
   it("returns info for valid subreddit", async () => {

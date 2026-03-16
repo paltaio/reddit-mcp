@@ -110,32 +110,6 @@ export interface PaginatedResult<T> {
   after: string | null;
 }
 
-export async function search(
-  query: string,
-  limit = 5,
-  sort: "relevance" | "hot" | "top" | "new" = "relevance",
-  time: "hour" | "day" | "week" | "month" | "year" | "all" = "all",
-  after?: string
-): Promise<PaginatedResult<RedditPost>> {
-  const params = new URLSearchParams({
-    q: query,
-    limit: String(limit),
-    sort,
-    t: time,
-  });
-  if (after) params.set("after", after);
-
-  const url = `${BASE_URL}/search.json?${params}`;
-  const response = await fetchJson<Record<string, unknown>>(url);
-  const data = response.data as Record<string, unknown>;
-  const children = data.children as Record<string, unknown>[];
-
-  return {
-    items: children.map((child) => parsePost(child.data as Record<string, unknown>)),
-    after: (data.after as string) ?? null,
-  };
-}
-
 export async function getSubredditInfo(subreddit: string): Promise<SubredditInfo> {
   const url = `${BASE_URL}/r/${subreddit}/about.json`;
   const response = await fetchJson<Record<string, unknown>>(url);

@@ -8,7 +8,6 @@ describe("createServer", () => {
     const tools = server._registeredTools as Record<string, { description?: string }>;
 
     const expectedTools = {
-      search: "Search Reddit globally for posts matching a query",
       subreddit_info: "Get information about a subreddit",
       subreddit_posts: "Get posts from a subreddit",
       post_comments: "Get a post and its comments",

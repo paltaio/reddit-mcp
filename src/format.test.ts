@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { formatPosts, formatSubredditInfo, formatPostWithComments } from "./format.ts";
 import {
-  search,
   getSubredditInfo,
   getSubredditPosts,
   getPostComments,
@@ -21,7 +20,7 @@ describe("formatPosts", () => {
   });
 
   it("formats real posts in md format", async () => {
-    const searchResult = await search("javascript", 3);
+    const searchResult = await getSubredditPosts("javascript", 3);
     const result = formatPosts(searchResult.items, "md", searchResult.after);
 
     expect(result).toContain("##");
@@ -43,7 +42,7 @@ describe("formatPosts", () => {
   });
 
   it("separates multiple posts with dividers in md format", async () => {
-    const searchResult = await search("python", 3);
+    const searchResult = await getSubredditPosts("python", 3);
     const result = formatPosts(searchResult.items, "md", searchResult.after);
 
     expect(result).toContain("---");
